@@ -17,3 +17,12 @@ Vì còn một số chỗ nữa thì mới chạy ngon được nên các việc
 - [ ] Check thời gian *thích hợp* để restake?
 - [ ] Check restake đã success chưa?
 - [ ] Scripts / docs deploy to GCP Cloudfunctions
+
+# RUN
+
+```bash
+# cp .env.example .env
+# thêm dòng
+# MNEMONIC=là 12 chữ cái private lúc tạo ví Ronin
+go run main.go
+```
