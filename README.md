@@ -54,14 +54,44 @@ Cuối cùng import file module `token` vào code và gọi lên contract.
 - [x] Cào abi từ manifest
 - [x] Tự động restake
 - [ ] Check restake đã success chưa?
-- [ ] Scripts / docs deploy to GCP Cloudfunctions
+- [x] Scripts / docs deploy to GCP Cloud Functions
 - [ ] Thêm option dùng private key thay vì mnemonic
 
-# RUN
+# Deploy to GCP Cloud Functions
+
+
+1. Tạo Cloud Functions https://console.cloud.google.com/functions/list
+
+![](https://i.imgur.com/oHi0UdV.png)
+
+![](https://i.imgur.com/SnxrFje.png)
+
+![](https://i.imgur.com/SiaU9CD.png)
+
+2. Tạo lịch chạy bằng Cloud Scheduler https://console.cloud.google.com/cloudscheduler
+
+![](https://i.imgur.com/kQDEz1t.png)
+
+![](https://i.imgur.com/X5L9M0m.png)
+
+3. Deploy source code
+- Cài đặt gcloud cli https://cloud.google.com/sdk/docs/install
+
+```bash
+gcloud auth login # auth to GCP
+go mod vendor
+export PROJECT=
+export FUNC_NAME=axs-auto-stake-1
+gcloud functions deploy $FUNC_NAME --runtime go113 --entry-point Restake --project $PROJECT
+```
+
+# RUN LOCAL
 
 ```bash
 # cp .env.example .env
 # thêm dòng
 # MNEMONIC=là 12 chữ cái private lúc tạo ví Ronin
-go run main.go
+go mod tidy
+go build cmd/main.go && chmod +x main
+./main
 ```

@@ -1,24 +1,29 @@
-package main
+package restake
 
 import (
-	"axs-auto-stake/token"
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
-	"github.com/miguelmota/go-ethereum-hdwallet"
+	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
+	"github.com/toanalien/axs-auto-restake/token"
 	"log"
 	"math/big"
 	"os"
 	"time"
 )
 
-func main() {
+type PubSubMessage struct {
+	Data []byte `json:"data"`
+}
+
+func Restake(ctx context.Context, m PubSubMessage) error {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 	mnemonic := os.Getenv("MNEMONIC")
 	rClient, _ := ethclient.Dial("https://api.roninchain.com/rpc")
@@ -60,8 +65,11 @@ func main() {
 	restakeTime := time.Unix(int64(block.Time()), 0).Add(time.Hour * time.Duration(24))
 	localTime := time.Now().Local()
 
-	if localTime.After(restakeTime) {
+	if restakeTime.After(localTime) {
+		log.Println("Wait next time")
+	} else {
 		// Restake
+		log.Println("Restaking")
 		nonce, err := rClient.PendingNonceAt(context.Background(), common.HexToAddress(account.Address.Hex()))
 		ins2, err := token.NewToken(axsStakingPoolContract, wClient)
 		if err != nil {
@@ -81,4 +89,5 @@ func main() {
 		}
 		fmt.Println(fmt.Sprintf("https://explorer.roninchain.com/tx/%s", trans.Hash().String()))
 	}
+	return nil
 }
